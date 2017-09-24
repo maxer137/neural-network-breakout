@@ -2,6 +2,7 @@
 popsize = 50; //population size
 speed = 1;
 mutationR = 10;
+var show = 1;
 
 //arrays for handeling object/functions
 nets = []; //array for handeling the neural networks
@@ -14,9 +15,12 @@ newgen = []; //selected networks
 generation = 0; //generation counter
 
 function setup() {
-  createCanvas(900, 500);
-  createP('speed');
-  speed = createSlider(1, 1000, 1);
+  var cnv = createCanvas(920, 520);
+  cnv.position((windowWidth / 2) - 460, 300);
+  speed = createP('speed');
+  speed = createSlider(1, 25000, 1);
+  checkbox = createCheckbox('show', true);
+  checkbox.changed(myCheckedEvent);
   this.createblocks = function() {
     for (var i = 0; i < 18; i++) {
       brick = new Brick(50 * i, 50, 255, 0, 0, 320);
@@ -50,7 +54,8 @@ function setup() {
 }
 
 function draw() {
-  background(51);
+  background(200, 255, 255);
+  translate(10, 10);
   for (var k = 0; k < speed.value(); k++) {
     for (var i = 0; i < bricks.length; i++) {
       if (ball.x < bricks[i].x + 50 && ball.x > bricks[i].x && ball.y < bricks[i].y + 20 && ball.y > bricks[i].y) {
@@ -93,12 +98,34 @@ function draw() {
       }
     }
   }
-  ball.show();
-  for (var i = 0; i < bricks.length; i++) {
-    bricks[i].show();
+
+  if (show == 1) {
+    ball.show();
+    for (var i = 0; i < bricks.length; i++) {
+      bricks[i].show();
+    }
+    paddle.show();
+
+    fill(0);
+    translate(-10, -10);
+    fill(51);
+    rect(0, 0, 18, 1500);
+    rect(920, 0, 18, 1500);
+    rect(0, 0, 2000, 18);
+    rect(0, 520, 2000, 18);
+    translate(10, 10);
   }
-  paddle.show();
+  text("fitness: " + nets[paddle.numb].fit, 0, 490);
   text("generation: " + generation, 0, 450);
   text("genome: " + paddle.numb, 0, 470);
-  text("fitness: " + nets[paddle.numb].fit, 0, 490);
+}
+
+function myCheckedEvent() {
+  if (this.checked()) {
+    show = 1;
+    console.log(show);
+  } else {
+    show = 0;
+    console.log(show);
+  }
 }

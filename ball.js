@@ -5,6 +5,7 @@ function Ball(x, y) {
   this.ydir = random(1, 2);
 
   this.show = function() {
+    fill(255);
     ellipseMode(CENTER);
     ellipse(this.x, this.y, 10, 10);
   }

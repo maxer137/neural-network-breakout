@@ -51,9 +51,9 @@ function Net(genes) {
       }
       this.output[i] /= this.hidden.length;
     }
-    this.input[1] = ball.x / 900;
-    this.input[2] = ball.y / 500;
-    this.input[3] = paddle.x / 900;
+    this.input[0] = ball.x / 900;
+    this.input[1] = ball.y / 500;
+    this.input[2] = paddle.x / 900;
     this.input[3] = ball.xdir / 4;
     this.input[4] = ball.ydir / 4;
   }
