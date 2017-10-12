@@ -1,8 +1,10 @@
 //settings
+mutationR = 10;
+mutationS = 1;
 popsize = 50; //population size
 speed = 1;
-mutationR = 10;
-var show = 1;
+show = 1;
+counter = 0;
 
 //arrays for handeling object/functions
 nets = []; //array for handeling the neural networks
@@ -12,15 +14,20 @@ bricks = []; //array for handeling bricks
 nextgen = []; //neural networks that have a chance for the next generation
 newgen = []; //selected networks
 
+average = 0;
+record = 0;
 generation = 0; //generation counter
 
 function setup() {
   var cnv = createCanvas(920, 520);
   cnv.position((windowWidth / 2) - 460, 300);
   speed = createP('speed');
-  speed = createSlider(1, 25000, 1);
+  speed = createSlider(1, 20000, 1);
   checkbox = createCheckbox('show', true);
   checkbox.changed(myCheckedEvent);
+  button = createButton('kill');
+  button.position((windowWidth / 2) + (windowWidth / 4), 225);
+  button.mousePressed(update);
   this.createblocks = function() {
     for (var i = 0; i < 18; i++) {
       brick = new Brick(50 * i, 50, 255, 0, 0, 320);
@@ -43,6 +50,34 @@ function setup() {
       bricks.push(brick);
     }
   }
+  this.update = function() {
+    for (var i = bricks.length; i > 0; i--) {
+      bricks.splice(0, 1);
+    }
+    this.createblocks();
+    paddle.numb++;
+    ball.x = 450;
+    ball.y = 300;
+    ball.xdir = random(-4, 4);
+    ball.ydir = random(1, 2);
+    paddle.x = 450;
+    if (paddle.numb > popsize - 1) {
+      average = 0;
+      for (var i = 0; i < nets.length; i++) {
+        average += nets[i].fit;
+      }
+      average /= nets.length;
+      generation++;
+      paddle.numb = 0;
+      for (var i = 0; i < nets.length; i++) {
+        for (var j = 0; j < nets[i].fit; j++) {
+          nextgen.push(nets[i]);
+        }
+      }
+      population.selection();
+      nets = newgen;
+    }
+  }
   this.createblocks();
   population = new Population();
   paddle = new Paddle(450, 450);
@@ -56,7 +91,11 @@ function setup() {
 function draw() {
   background(200, 255, 255);
   translate(10, 10);
+  button.position((windowWidth / 2) + (windowWidth / 4), 225);
   for (var k = 0; k < speed.value(); k++) {
+    if (record < nets[paddle.numb].fit) {
+      record = nets[paddle.numb].fit;
+    }
     for (var i = 0; i < bricks.length; i++) {
       if (ball.x < bricks[i].x + 50 && ball.x > bricks[i].x && ball.y < bricks[i].y + 20 && ball.y > bricks[i].y) {
         if (ball.y < bricks[i].y + 20 + ball.ydir && ball.y > bricks[i].y + ball.ydir) {
@@ -69,33 +108,16 @@ function draw() {
       }
     }
     ball.check();
-    for (var i = 0; i < nets.length; i++) {
-      nets[i].update();
-    }
+    nets[paddle.numb].update();
     paddle.update();
+    counter++;
+    if (counter > 10000000) {
+      update();
+      counter = 0;
+    }
     textSize(20);
     if (ball.y > 500) {
-      for (var i = bricks.length; i > 0; i--) {
-        bricks.splice(0, 1);
-      }
-      this.createblocks();
-      paddle.numb++;
-      ball.x = 450;
-      ball.y = 300;
-      ball.xdir = random(-4, 4);
-      ball.ydir = random(1, 2);
-      paddle.x = 450;
-      if (paddle.numb > popsize - 1) {
-        generation++;
-        paddle.numb = 0;
-        for (var i = 0; i < nets.length; i++) {
-          for (var j = 0; j < nets[i].fit; j++) {
-            nextgen.push(nets[i]);
-          }
-        }
-        population.selection();
-        nets = newgen;
-      }
+      update();
     }
   }
 
@@ -105,7 +127,6 @@ function draw() {
       bricks[i].show();
     }
     paddle.show();
-
     fill(0);
     translate(-10, -10);
     fill(51);
@@ -115,9 +136,13 @@ function draw() {
     rect(0, 520, 2000, 18);
     translate(10, 10);
   }
-  text("fitness: " + nets[paddle.numb].fit, 0, 490);
-  text("generation: " + generation, 0, 450);
-  text("genome: " + paddle.numb, 0, 470);
+  text("generation: " + generation, 0, 410);
+  text("genome: " + paddle.numb, 0, 430);
+  text("fitness: " + nets[paddle.numb].fit, 0, 450);
+  text("average fitness: " + average, 0, 470);
+  text("record fitness: " + record, 0, 490);
+  drawing = new Drawing(775, 430, 25, nets[paddle.numb]);
+  drawing.show();
 }
 
 function myCheckedEvent() {
@@ -127,5 +152,34 @@ function myCheckedEvent() {
   } else {
     show = 0;
     console.log(show);
+  }
+}
+
+function update() {
+  for (var i = bricks.length; i > 0; i--) {
+    bricks.splice(0, 1);
+  }
+  createblocks();
+  paddle.numb++;
+  ball.x = 450;
+  ball.y = 300;
+  ball.xdir = random(-4, 4);
+  ball.ydir = random(1, 2);
+  paddle.x = 450;
+  if (paddle.numb > popsize - 1) {
+    average = 0;
+    for (var i = 0; i < nets.length; i++) {
+      average += nets[i].fit;
+    }
+    average /= nets.length;
+    generation++;
+    paddle.numb = 0;
+    for (var i = 0; i < nets.length; i++) {
+      for (var j = 0; j < nets[i].fit; j++) {
+        nextgen.push(nets[i]);
+      }
+    }
+    population.selection();
+    nets = newgen;
   }
 }

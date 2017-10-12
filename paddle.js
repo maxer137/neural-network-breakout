@@ -17,11 +17,11 @@ function Paddle(x, y) {
         this.bestn = i;
       }
     }
-    if (this.bestn < 1) {
-      this.x += 50 * nets[this.numb].output[2];
+    if (this.bestn < 0.5) {
+      this.x += 20 * nets[this.numb].output[2];
       this.best = 0;
     } else if (this.bestn = 1) {
-      this.x -= 50 * nets[this.numb].output[2];
+      this.x -= 20 * nets[this.numb].output[2];
       this.best = 0;
     }
   }
